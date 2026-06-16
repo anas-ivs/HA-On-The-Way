@@ -128,9 +128,9 @@ class MqttClient:
     def _device(self):
         return {
             "identifiers": [DEVICE_ID],
-            "name": "Grab Tracker",
-            "manufacturer": "Grab Tracker",
-            "model": "Order Tracker",
+            "name": "On the way",
+            "manufacturer": "On the way",
+            "model": "Penjejak Pesanan",
             "sw_version": self.version,
         }
 

@@ -6,6 +6,7 @@ from telegram.ext import (
 import re
 import asyncio
 import logging
+from grab_api import detect_service
 
 _LOGGER = logging.getLogger(__name__)
 GRAB_URL_RE = re.compile(r'https://app\.grab\.com/s/\S+')
@@ -63,6 +64,15 @@ class TelegramBot:
         match = GRAB_URL_RE.search(text)
         if match and self.tracker:
             await self.tracker.start_tracking(match.group(), chat_id)
+            return
+        # Not a Grab link — tell the user if it's a known-other service or a stray link.
+        kind, label = detect_service(text)
+        if kind == "unsupported":
+            await update.message.reply_text(
+                f"🙇 Maaf, {label} belum disokong lagi. Kini hanya Grab disokong.")
+        elif "http" in text.lower():
+            await update.message.reply_text(
+                "🙇 Maaf, pautan itu tidak dikenali atau belum disokong. Kini hanya Grab disokong.")
 
     async def _cmd_poll(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not self._authorized(update):
@@ -90,8 +100,8 @@ class TelegramBot:
         if not self._authorized(update):
             await update.message.reply_text("⛔ Tiada kebenaran untuk menggunakan bot ini.")
             return
-        lines = [f"🛵 *Penjejak Grab v{self.version}*", "",
-                 "Hantar pautan kongsi Grab untuk mula menjejak.", "", "*Arahan:*"]
+        lines = [f"🛵 *On the way v{self.version}*", "",
+                 "Hantar pautan kongsi untuk mula menjejak.", "", "*Arahan:*"]
         lines += [f"/{name} — {desc}" for name, desc in COMMANDS]
         await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
 

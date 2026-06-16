@@ -6,6 +6,28 @@ from datetime import datetime, timezone
 from typing import Optional
 from zoneinfo import ZoneInfo
 
+# Known-but-not-yet-supported services → friendly label (substring match on the URL/text).
+UNSUPPORTED_SERVICES = {
+    "foodpanda": "foodpanda",
+    "panda.link": "foodpanda",
+    "shopee": "Shopee",
+    "shp.ee": "Shopee",
+    "lalamove": "Lalamove",
+    "maxim": "Maxim",
+    "deliveroo": "Deliveroo",
+}
+
+def detect_service(text: str):
+    """Classify a pasted link/text. Returns ('grab', None) | ('unsupported', label) |
+    ('invalid', None). Grab takes priority (covers grabfood/grabexpress share links)."""
+    t = (text or "").lower()
+    if "grab" in t:
+        return ("grab", None)
+    for kw, label in UNSUPPORTED_SERVICES.items():
+        if kw in t:
+            return ("unsupported", label)
+    return ("invalid", None)
+
 API_URL = "https://api.grab.com/api/v1/safety/sharemyride/{token}/bookingdetails?fullData=true"
 HEADERS = {
     "accept": "application/json, text/plain, */*",

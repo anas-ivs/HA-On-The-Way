@@ -46,8 +46,12 @@ def delete_order(order_id):
 def track():
     data = request.get_json(force=True, silent=True) or {}
     url = (data.get("url") or "").strip()
-    if "grab" not in url.lower():
-        return jsonify({"ok": False, "message": "URL mesti pautan kongsi Grab."}), 400
+    from grab_api import detect_service
+    kind, label = detect_service(url)
+    if kind == "unsupported":
+        return jsonify({"ok": False, "message": f"Maaf, {label} belum disokong lagi. Kini hanya Grab disokong."}), 400
+    if kind != "grab":
+        return jsonify({"ok": False, "message": "URL mesti pautan kongsi pesanan yang sah."}), 400
     if _tracker is None:
         return jsonify({"ok": False, "message": "Penjejak tidak tersedia."}), 503
     ok, message = _call(_tracker.api_track(url))

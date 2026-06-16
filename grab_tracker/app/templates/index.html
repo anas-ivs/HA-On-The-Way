@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Penjejak Grab</title>
+  <title>On the way</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #333; }
@@ -29,8 +29,12 @@
     .timeline .ts { color: #888; font-size: .75rem; margin-left: .5rem; }
     .no-orders { text-align: center; padding: 2rem; color: #888; }
     .refresh-note { font-size: .75rem; color: #888; margin-top: .75rem; text-align: right; }
-    .settings { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
-    .settings h2 { font-size: .9rem; text-transform: uppercase; letter-spacing: .05em; color: #00b14f; margin-bottom: .75rem; }
+    .settings { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); margin-bottom: 1.25rem; padding: 0; }
+    .settings > summary { list-style: none; cursor: pointer; padding: .85rem 1.25rem; font-size: .9rem; text-transform: uppercase; letter-spacing: .05em; color: #00b14f; font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+    .settings > summary::-webkit-details-marker { display: none; }
+    .settings > summary::after { content: '▸'; margin-left: auto; transition: transform .15s ease; }
+    .settings[open] > summary::after { transform: rotate(90deg); }
+    .settings .settings-body { padding: 0 1.25rem 1rem; }
     .settings .field { display: flex; align-items: center; gap: .6rem; margin: .5rem 0; font-size: .88rem; }
     .settings .field label { flex: 1; }
     .settings input[type="number"] { width: 6rem; padding: .3rem .4rem; border: 1px solid #ccc; border-radius: 4px; }
@@ -50,8 +54,12 @@
     .active .none { color: #888; font-size: .85rem; padding: .3rem 0; }
     .row-del { background: transparent; border: none; cursor: pointer; font-size: 1rem; opacity: .55; }
     .row-del:hover { opacity: 1; }
-    .track { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
-    .track h2 { font-size: .9rem; text-transform: uppercase; letter-spacing: .05em; color: #00b14f; margin-bottom: .6rem; }
+    .track { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); margin-bottom: 1.25rem; padding: 0; }
+    .track > summary { list-style: none; cursor: pointer; padding: .85rem 1.25rem; font-size: .9rem; text-transform: uppercase; letter-spacing: .05em; color: #00b14f; font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+    .track > summary::-webkit-details-marker { display: none; }
+    .track > summary::after { content: '▸'; margin-left: auto; transition: transform .15s ease; }
+    .track[open] > summary::after { transform: rotate(90deg); }
+    .track .track-body { padding: 0 1.25rem 1rem; }
     .track .field { display: flex; gap: .6rem; }
     .track input[type="text"] { flex: 1; padding: .5rem .6rem; border: 1px solid #ccc; border-radius: 6px; font-size: .9rem; }
     .track button { background: #00b14f; color: white; border: none; padding: .5rem 1.1rem; border-radius: 6px; font-size: .9rem; cursor: pointer; }
@@ -59,45 +67,43 @@
     .track .msg { font-size: .82rem; margin-top: .5rem; min-height: 1em; }
     .track .msg.ok { color: #00874b; }
     .track .msg.err { color: #c00; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .table-wrap table { box-shadow: none; }
+    /* Narrow / mobile layout */
+    @media (max-width: 560px) {
+      main { padding: 1rem .75rem; }
+      header { padding: .85rem 1rem; }
+      header h1 { font-size: 1.05rem; }
+      table { min-width: 620px; }            /* keep columns readable; wrapper scrolls */
+      .track .field { flex-wrap: wrap; }
+      .track button { flex: 1 1 100%; }
+      .acard { flex-wrap: wrap; }
+      .acard .info { flex: 1 1 100%; margin-bottom: .45rem; }
+      .acard button { flex: 1; }
+      .settings .field { flex-wrap: wrap; align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
-  <header><h1>🛵 Penjejak Grab</h1><span class="version" id="version">v…</span></header>
+  <header><h1>🛵 On the way</h1><span class="version" id="version">v…</span></header>
   <main>
-    <section class="settings">
-      <h2>Tetapan</h2>
-      <div class="field">
-        <label for="send-loc">Hantar pin lokasi pemandu ke Telegram</label>
-        <input type="checkbox" id="send-loc">
+    <details class="track" open>
+      <summary>➕ Jejak Pesanan Baharu</summary>
+      <div class="track-body">
+        <div class="field">
+          <input type="text" id="track-url" placeholder="Tampal pautan kongsi pesanan di sini">
+          <button id="track-btn" disabled>Jejak</button>
+        </div>
+        <div class="msg" id="track-msg"></div>
       </div>
-      <div class="field">
-        <label for="debug-msg">Hantar mesej nyahpepijat mentah ke Telegram</label>
-        <input type="checkbox" id="debug-msg">
-      </div>
-      <div class="field">
-        <label for="min-move">Pergerakan minimum pemandu sebelum pin baharu <span class="hint">(meter, 0 = setiap semakan)</span></label>
-        <input type="number" id="min-move" min="0" step="10" value="0">
-      </div>
-      <div>
-        <button id="save-settings">Simpan tetapan</button>
-        <span class="saved" id="settings-saved" style="display:none">✓ Disimpan</span>
-      </div>
-    </section>
-
-    <section class="track">
-      <h2>Jejak Pesanan Baharu</h2>
-      <div class="field">
-        <input type="text" id="track-url" placeholder="Tampal pautan kongsi Grab (https://app.grab.com/s/…)">
-        <button id="track-btn" disabled>Jejak</button>
-      </div>
-      <div class="msg" id="track-msg"></div>
-    </section>
+    </details>
 
     <section class="active">
       <h2>Penjejakan Aktif</h2>
       <div id="active-list"><div class="none">Memuatkan…</div></div>
     </section>
 
+    <div class="table-wrap">
     <table>
       <thead>
         <tr>
@@ -115,7 +121,30 @@
         <tr><td colspan="8" class="no-orders">Memuatkan…</td></tr>
       </tbody>
     </table>
+    </div>
     <p class="refresh-note">Dimuat semula automatik setiap 30s</p>
+
+    <details class="settings">
+      <summary>⚙️ Tetapan</summary>
+      <div class="settings-body">
+        <div class="field">
+          <label for="send-loc">Hantar pin lokasi pemandu ke Telegram</label>
+          <input type="checkbox" id="send-loc">
+        </div>
+        <div class="field">
+          <label for="debug-msg">Hantar mesej nyahpepijat mentah ke Telegram</label>
+          <input type="checkbox" id="debug-msg">
+        </div>
+        <div class="field">
+          <label for="min-move">Pergerakan minimum pemandu sebelum pin baharu <span class="hint">(meter, 0 = setiap semakan)</span></label>
+          <input type="number" id="min-move" min="0" step="10" value="0">
+        </div>
+        <div>
+          <button id="save-settings">Simpan tetapan</button>
+          <span class="saved" id="settings-saved" style="display:none">✓ Disimpan</span>
+        </div>
+      </div>
+    </details>
   </main>
 
   <script>
@@ -249,15 +278,17 @@
     const trackBtn = document.getElementById('track-btn');
     const trackMsg = document.getElementById('track-msg');
 
-    // Rule: enable Track only when the URL contains "grab".
+    // Rule: enable Track once the input looks like a link; the server then classifies
+    // it (Grab → track, known-other → "not supported", else → invalid).
     function validateTrackUrl() {
-      trackBtn.disabled = !trackUrl.value.toLowerCase().includes('grab');
+      const v = trackUrl.value.trim().toLowerCase();
+      trackBtn.disabled = !(v.includes('http') || v.includes('.'));
     }
     trackUrl.addEventListener('input', validateTrackUrl);
 
     async function submitTrack() {
       const url = trackUrl.value.trim();
-      if (!url.toLowerCase().includes('grab')) return;
+      if (!url) return;
       trackBtn.disabled = true;
       trackMsg.textContent = 'Memulakan…';
       trackMsg.className = 'msg';

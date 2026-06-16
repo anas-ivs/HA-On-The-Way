@@ -1,10 +1,23 @@
-# Penjejak Grab
+# On the way
 
-Jejak pesanan makanan dan tunggangan Grab anda dalam Home Assistant dan Telegram. Hantar
-pautan "kongsi" Grab kepada bot Telegram anda (atau tampal di antara muka web add-on) dan
-add-on ini akan mengikuti pesanan secara langsung — menghantar kemas kini status, anggaran
-masa tiba, dan lokasi pemandu ke Telegram, mencerminkan semuanya ke dalam entiti Home
-Assistant melalui MQTT, serta menyimpan sejarah yang boleh dilihat dalam antara muka web.
+Jejak pesanan penghantaran dan tunggangan anda secara langsung dalam Home Assistant dan
+Telegram. Hantar pautan "kongsi" pesanan kepada bot Telegram anda (atau tampal di antara
+muka web add-on) dan add-on ini akan mengikuti pesanan secara langsung — menghantar kemas
+kini status, anggaran masa tiba, dan lokasi pemandu ke Telegram, mencerminkan semuanya ke
+dalam entiti Home Assistant melalui MQTT, serta menyimpan sejarah yang boleh dilihat dalam
+antara muka web.
+
+## Perkhidmatan disokong
+
+| Perkhidmatan | Status |
+|--------------|--------|
+| **Grab** (makanan & tunggangan) | ✅ Disokong sekarang |
+| foodpanda | 🔜 Dirancang |
+| ShopeeFood / Shopee | 🔜 Dirancang |
+| Lain-lain | 🔜 Akan ditambah jika kaedah penjejakan tersedia |
+
+Buat masa ini, hantar **pautan kongsi Grab** (`https://app.grab.com/s/...`). Sokongan untuk
+perkhidmatan lain akan ditambah apabila kaedah penjejakan masing-masing tersedia.
 
 ## Yang anda perlukan
 
@@ -57,7 +70,7 @@ Taip `/` dalam sembang untuk melihat menu:
 
 ## Entiti Home Assistant
 
-Semua entiti berada di bawah satu peranti bernama **Grab Tracker**:
+Semua entiti berada di bawah satu peranti bernama **On the way**:
 
 - Bagi setiap slot pesanan (1–N): **Status**, **Anggaran Tiba** (min), **Masa Penghantaran**,
   dan satu `device_tracker` **Pemandu** (dipaparkan pada peta semasa dalam perjalanan).

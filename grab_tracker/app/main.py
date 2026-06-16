@@ -114,10 +114,10 @@ async def main():
 
     stopped = await tracker.stop_all_on_startup()
     if config.get("notify_chat_id"):
-        msg = f"🛵 Penjejak Grab v{VERSION} dimulakan."
+        msg = f"🛵 On the way v{VERSION} dimulakan."
         if stopped:
             msg += f"\n⏹ {stopped} sesi penjejakan terdahulu dihentikan semasa but semula (tidak disambung semula)."
-        msg += "\nHantar pautan kongsi Grab untuk mula menjejak."
+        msg += "\nHantar pautan kongsi untuk mula menjejak."
         try:
             await bot.send_text(config["notify_chat_id"], msg)
         except Exception as e:

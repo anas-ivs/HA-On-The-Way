@@ -1,14 +1,17 @@
-# Penjejak Grab — Add-on Home Assistant
+# On the way — Add-on Home Assistant
 
-Jejak pesanan makanan dan tunggangan Grab anda dalam Home Assistant dan Telegram. Hantar
-pautan "kongsi" Grab kepada bot Telegram anda (atau tampal di antara muka web add-on) dan
-add-on ini akan mengikuti pesanan secara langsung — menghantar kemas kini status, anggaran
-masa tiba, dan lokasi pemandu ke Telegram, mencerminkan semuanya ke dalam entiti Home
-Assistant melalui MQTT, serta menyimpan sejarah yang boleh dilayari.
+Jejak pesanan penghantaran dan tunggangan anda secara langsung dalam Home Assistant dan
+Telegram. Hantar pautan "kongsi" pesanan kepada bot Telegram anda (atau tampal di antara
+muka web add-on) dan add-on ini akan mengikuti pesanan secara langsung — menghantar kemas
+kini status, anggaran masa tiba, dan lokasi pemandu ke Telegram, mencerminkan semuanya ke
+dalam entiti Home Assistant melalui MQTT, serta menyimpan sejarah yang boleh dilayari.
+
+**Perkhidmatan:** kini menyokong **Grab** (makanan & tunggangan). Sokongan untuk foodpanda,
+ShopeeFood/Shopee dan lain-lain dirancang apabila kaedah penjejakan tersedia.
 
 ## Ciri-ciri
 
-- 🛵 Penjejakan pesanan secara langsung daripada pautan kongsi Grab (Telegram **atau** web)
+- 🛵 Penjejakan pesanan secara langsung daripada pautan kongsi (kini Grab; lain-lain akan datang) — melalui Telegram **atau** web
 - 📦 Sehingga 5 pesanan serentak (boleh dikonfigurasi), setiap satu sebagai slot di bawah
   satu peranti MQTT HA
 - 🗺️ Lokasi pemandu dihantar ke Telegram dan satu `device_tracker` HA
@@ -26,7 +29,7 @@ Assistant melalui MQTT, serta menyimpan sejarah yang boleh dilayari.
    ```
    https://github.com/anas-ivs/HA-Grab-Tracker
    ```
-3. Pasang **Grab Tracker** dari kedai, konfigurasikan, dan mulakan.
+3. Pasang **On the way** dari kedai, konfigurasikan, dan mulakan.
 
 ## Keperluan
 

@@ -1,5 +1,5 @@
-name: "Grab Tracker"
-description: "Jejak pesanan makanan/tunggangan Grab melalui Telegram dengan integrasi sensor HA"
+name: "On the way"
+description: "Jejak pesanan penghantaran & tunggangan secara langsung melalui Telegram + sensor HA (kini menyokong Grab)"
 version: "2.0.0"
 slug: "grab_tracker"
 url: "https://github.com/anas-ivs/HA-Grab-Tracker"
@@ -50,6 +50,6 @@ services:
 ingress: true
 ingress_port: 8099
 panel_icon: "mdi:moped"
-panel_title: "Penjejak Grab"
+panel_title: "On the way"
 map:
   - data:rw
