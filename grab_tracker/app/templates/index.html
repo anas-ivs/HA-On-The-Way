@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grab Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #00b14f; color: white; padding: 1rem 1.5rem; display: flex; align-items: baseline; justify-content: space-between; }
+    header h1 { font-size: 1.25rem; }
+    header .version { font-size: .8rem; opacity: .85; }
+    main { padding: 1.5rem; max-width: 960px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    th { background: #00b14f; color: white; text-align: left; padding: .6rem 1rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+    td { padding: .65rem 1rem; border-bottom: 1px solid #eee; font-size: .9rem; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr.order-row:hover { background: #f0fff4; cursor: pointer; }
+    .badge { display: inline-block; padding: .2rem .5rem; border-radius: 12px; font-size: .75rem; font-weight: 600; }
+    .badge-active { background: #e6f9ee; color: #00b14f; }
+    .badge-done { background: #eee; color: #555; }
+    .badge-cancelled { background: #fee; color: #c00; }
+    .events-row td { padding: 0; background: #fafafa; }
+    .events-inner { padding: .75rem 1rem; display: none; }
+    .events-inner.open { display: block; }
+    .timeline { list-style: none; padding-left: 1rem; border-left: 2px solid #00b14f; }
+    .timeline li { position: relative; padding: .3rem 0 .3rem 1rem; font-size: .82rem; }
+    .timeline li::before { content: ''; position: absolute; left: -5px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: #00b14f; }
+    .timeline .ts { color: #888; font-size: .75rem; margin-left: .5rem; }
+    .no-orders { text-align: center; padding: 2rem; color: #888; }
+    .refresh-note { font-size: .75rem; color: #888; margin-top: .75rem; text-align: right; }
+    .settings { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+    .settings h2 { font-size: .9rem; text-transform: uppercase; letter-spacing: .05em; color: #00b14f; margin-bottom: .75rem; }
+    .settings .field { display: flex; align-items: center; gap: .6rem; margin: .5rem 0; font-size: .88rem; }
+    .settings .field label { flex: 1; }
+    .settings input[type="number"] { width: 6rem; padding: .3rem .4rem; border: 1px solid #ccc; border-radius: 4px; }
+    .settings button { background: #00b14f; color: white; border: none; padding: .45rem 1rem; border-radius: 6px; font-size: .85rem; cursor: pointer; }
+    .settings button:disabled { opacity: .5; cursor: default; }
+    .settings .saved { color: #00b14f; font-size: .8rem; margin-left: .6rem; }
+    .settings .hint { color: #888; font-size: .75rem; }
+    .active { margin-bottom: 1.25rem; }
+    .active h2 { font-size: .9rem; text-transform: uppercase; letter-spacing: .05em; color: #00b14f; margin-bottom: .6rem; }
+    .acard { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: .7rem 1rem; margin-bottom: .6rem; display: flex; align-items: center; gap: .75rem; }
+    .acard .info { flex: 1; font-size: .88rem; }
+    .acard .slot { display: inline-block; background: #00b14f; color: white; border-radius: 6px; padding: .1rem .5rem; font-size: .75rem; font-weight: 600; margin-right: .4rem; }
+    .acard .sub { color: #888; font-size: .78rem; }
+    .acard button { border: none; border-radius: 6px; padding: .4rem .7rem; font-size: .8rem; cursor: pointer; }
+    .acard .refresh { background: #e6f9ee; color: #00874b; }
+    .acard .kill { background: #fee; color: #c00; }
+    .active .none { color: #888; font-size: .85rem; padding: .3rem 0; }
+    .row-del { background: transparent; border: none; cursor: pointer; font-size: 1rem; opacity: .55; }
+    .row-del:hover { opacity: 1; }
+    .track { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+    .track h2 { font-size: .9rem; text-transform: uppercase; letter-spacing: .05em; color: #00b14f; margin-bottom: .6rem; }
+    .track .field { display: flex; gap: .6rem; }
+    .track input[type="text"] { flex: 1; padding: .5rem .6rem; border: 1px solid #ccc; border-radius: 6px; font-size: .9rem; }
+    .track button { background: #00b14f; color: white; border: none; padding: .5rem 1.1rem; border-radius: 6px; font-size: .9rem; cursor: pointer; }
+    .track button:disabled { opacity: .45; cursor: default; }
+    .track .msg { font-size: .82rem; margin-top: .5rem; min-height: 1em; }
+    .track .msg.ok { color: #00874b; }
+    .track .msg.err { color: #c00; }
+  </style>
+</head>
+<body>
+  <header><h1>🛵 Grab Tracker</h1><span class="version" id="version">v…</span></header>
+  <main>
+    <section class="settings">
+      <h2>Settings</h2>
+      <div class="field">
+        <label for="send-loc">Send driver location pins to Telegram</label>
+        <input type="checkbox" id="send-loc">
+      </div>
+      <div class="field">
+        <label for="debug-msg">Send raw debug messages to Telegram</label>
+        <input type="checkbox" id="debug-msg">
+      </div>
+      <div class="field">
+        <label for="min-move">Min driver movement before a new pin <span class="hint">(metres, 0 = every poll)</span></label>
+        <input type="number" id="min-move" min="0" step="10" value="0">
+      </div>
+      <div>
+        <button id="save-settings">Save settings</button>
+        <span class="saved" id="settings-saved" style="display:none">✓ Saved</span>
+      </div>
+    </section>
+
+    <section class="track">
+      <h2>Track a New Order</h2>
+      <div class="field">
+        <input type="text" id="track-url" placeholder="Paste a Grab share link (https://app.grab.com/s/…)">
+        <button id="track-btn" disabled>Track</button>
+      </div>
+      <div class="msg" id="track-msg"></div>
+    </section>
+
+    <section class="active">
+      <h2>Active Tracking</h2>
+      <div id="active-list"><div class="none">Loading…</div></div>
+    </section>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Booking</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Driver</th>
+          <th>Status</th>
+          <th>Started</th>
+          <th>Completed</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="orders-body">
+        <tr><td colspan="8" class="no-orders">Loading…</td></tr>
+      </tbody>
+    </table>
+    <p class="refresh-note">Auto-refreshes every 30s</p>
+  </main>
+
+  <script>
+    // Use relative URLs so requests stay under the HA ingress path prefix.
+    function statusBadge(status, isTerminal) {
+      const cls = isTerminal
+        ? (status === 'Cancelled' ? 'badge-cancelled' : 'badge-done')
+        : 'badge-active';
+      return `<span class="badge ${cls}">${status}</span>`;
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString();
+    }
+
+    async function loadEvents(orderId, container) {
+      if (container.dataset.loaded) {
+        container.classList.toggle('open');
+        return;
+      }
+      const res = await fetch(`api/orders/${orderId}/events`);
+      const events = await res.json();
+      const ul = document.createElement('ul');
+      ul.className = 'timeline';
+      events.forEach(e => {
+        const li = document.createElement('li');
+        const eta = e.eta_minutes != null ? ` · ETA ${e.eta_minutes} min` : '';
+        li.innerHTML = `<strong>${e.friendly_status}</strong>${eta}<span class="ts">${fmtDate(e.recorded_at)}</span>`;
+        ul.appendChild(li);
+      });
+      if (!events.length) ul.innerHTML = '<li>No events yet</li>';
+      container.appendChild(ul);
+      container.dataset.loaded = '1';
+      container.classList.add('open');
+    }
+
+    async function loadOrders() {
+      try {
+        const res = await fetch('api/orders');
+        const orders = await res.json();
+        const tbody = document.getElementById('orders-body');
+        if (!orders.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="no-orders">No orders tracked yet</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        orders.forEach(o => {
+          const row = document.createElement('tr');
+          row.className = 'order-row';
+          row.innerHTML = `
+            <td>${o.booking_code || '—'}</td>
+            <td>${o.pickup_name || '—'}</td>
+            <td>${o.dropoff_name || '—'}</td>
+            <td>${o.driver_name || '—'}<br><small>${o.vehicle || ''}</small></td>
+            <td>${statusBadge(o.friendly_status, o.is_terminal)}</td>
+            <td>${fmtDate(o.started_at)}</td>
+            <td>${fmtDate(o.completed_at)}</td>
+            <td><button class="row-del" title="Delete">🗑</button></td>
+          `;
+          const evRow = document.createElement('tr');
+          evRow.className = 'events-row';
+          const evTd = document.createElement('td');
+          evTd.colSpan = 8;
+          const evInner = document.createElement('div');
+          evInner.className = 'events-inner';
+          evTd.appendChild(evInner);
+          evRow.appendChild(evTd);
+
+          row.addEventListener('click', () => loadEvents(o.id, evInner));
+          row.querySelector('.row-del').addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            if (confirm('Delete this order and its history?')) deleteOrder(o.id);
+          });
+          tbody.appendChild(row);
+          tbody.appendChild(evRow);
+        });
+      } catch (err) {
+        document.getElementById('orders-body').innerHTML =
+          `<tr><td colspan="8" class="no-orders">Failed to load orders: ${err}</td></tr>`;
+      }
+    }
+
+    async function deleteOrder(orderId) {
+      try {
+        await fetch(`api/orders/${orderId}`, { method: 'DELETE' });
+        setTimeout(() => { loadOrders(); loadActive(); }, 400);
+      } catch (err) {
+        alert('Failed to delete order: ' + err);
+      }
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('api/settings');
+        const s = await res.json();
+        document.getElementById('send-loc').checked = s.send_driver_location === '1';
+        document.getElementById('debug-msg').checked = s.debug_messages === '1';
+        document.getElementById('min-move').value = s.location_min_move_meters ?? '0';
+      } catch (err) {
+        console.error('Failed to load settings', err);
+      }
+    }
+
+    async function saveSettings() {
+      const btn = document.getElementById('save-settings');
+      btn.disabled = true;
+      try {
+        await fetch('api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            send_driver_location: document.getElementById('send-loc').checked ? '1' : '0',
+            debug_messages: document.getElementById('debug-msg').checked ? '1' : '0',
+            location_min_move_meters: String(document.getElementById('min-move').value || '0'),
+          }),
+        });
+        const saved = document.getElementById('settings-saved');
+        saved.style.display = 'inline';
+        setTimeout(() => { saved.style.display = 'none'; }, 2000);
+      } catch (err) {
+        alert('Failed to save settings: ' + err);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById('save-settings').addEventListener('click', saveSettings);
+
+    const trackUrl = document.getElementById('track-url');
+    const trackBtn = document.getElementById('track-btn');
+    const trackMsg = document.getElementById('track-msg');
+
+    // Rule: enable Track only when the URL contains "grab".
+    function validateTrackUrl() {
+      trackBtn.disabled = !trackUrl.value.toLowerCase().includes('grab');
+    }
+    trackUrl.addEventListener('input', validateTrackUrl);
+
+    async function submitTrack() {
+      const url = trackUrl.value.trim();
+      if (!url.toLowerCase().includes('grab')) return;
+      trackBtn.disabled = true;
+      trackMsg.textContent = 'Starting…';
+      trackMsg.className = 'msg';
+      try {
+        const res = await fetch('api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        trackMsg.textContent = data.message || (data.ok ? 'Tracking started.' : 'Failed.');
+        trackMsg.className = 'msg ' + (data.ok ? 'ok' : 'err');
+        if (data.ok) { trackUrl.value = ''; loadActive(); loadOrders(); }
+      } catch (err) {
+        trackMsg.textContent = 'Request failed: ' + err;
+        trackMsg.className = 'msg err';
+      } finally {
+        validateTrackUrl();
+      }
+    }
+    trackBtn.addEventListener('click', submitTrack);
+
+    async function postAction(token, action) {
+      await fetch(`api/active/${encodeURIComponent(token)}/${action}`, { method: 'POST' });
+      setTimeout(() => { loadActive(); loadOrders(); }, 600);
+    }
+
+    async function loadActive() {
+      const wrap = document.getElementById('active-list');
+      try {
+        const res = await fetch('api/active');
+        const items = await res.json();
+        if (!items.length) {
+          wrap.innerHTML = '<div class="none">No orders currently being tracked.</div>';
+          return;
+        }
+        wrap.innerHTML = '';
+        items.forEach(i => {
+          const card = document.createElement('div');
+          card.className = 'acard';
+          const sub = [i.booking_code ? `Booking ${i.booking_code}` : null,
+                       i.dropoff ? `→ ${i.dropoff}` : null,
+                       `poll #${i.poll_count || 0}`].filter(Boolean).join(' · ');
+          card.innerHTML = `
+            <div class="info">
+              <span class="slot">Slot ${i.slot ?? '—'}</span>${i.status || '—'}
+              <div class="sub">${sub}</div>
+            </div>
+            <button class="refresh">Refresh</button>
+            <button class="kill">Stop</button>`;
+          card.querySelector('.refresh').addEventListener('click', () => postAction(i.token, 'refresh'));
+          card.querySelector('.kill').addEventListener('click', () => {
+            if (confirm('Stop tracking this order?')) postAction(i.token, 'kill');
+          });
+          wrap.appendChild(card);
+        });
+      } catch (err) {
+        wrap.innerHTML = `<div class="none">Failed to load active tracking: ${err}</div>`;
+      }
+    }
+
+    async function loadVersion() {
+      try {
+        const res = await fetch('api/version');
+        const { version } = await res.json();
+        document.getElementById('version').textContent = 'v' + version;
+      } catch (err) {
+        document.getElementById('version').textContent = '';
+      }
+    }
+
+    loadVersion();
+    loadSettings();
+    loadActive();
+    loadOrders();
+    setInterval(loadActive, 15000);
+    setInterval(loadOrders, 30000);
+  </script>
+</body>
+</html>
