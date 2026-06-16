@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grab Tracker</title>
+  <title>Penjejak Grab</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #333; }
@@ -62,67 +62,67 @@
   </style>
 </head>
 <body>
-  <header><h1>🛵 Grab Tracker</h1><span class="version" id="version">v…</span></header>
+  <header><h1>🛵 Penjejak Grab</h1><span class="version" id="version">v…</span></header>
   <main>
     <section class="settings">
-      <h2>Settings</h2>
+      <h2>Tetapan</h2>
       <div class="field">
-        <label for="send-loc">Send driver location pins to Telegram</label>
+        <label for="send-loc">Hantar pin lokasi pemandu ke Telegram</label>
         <input type="checkbox" id="send-loc">
       </div>
       <div class="field">
-        <label for="debug-msg">Send raw debug messages to Telegram</label>
+        <label for="debug-msg">Hantar mesej nyahpepijat mentah ke Telegram</label>
         <input type="checkbox" id="debug-msg">
       </div>
       <div class="field">
-        <label for="min-move">Min driver movement before a new pin <span class="hint">(metres, 0 = every poll)</span></label>
+        <label for="min-move">Pergerakan minimum pemandu sebelum pin baharu <span class="hint">(meter, 0 = setiap semakan)</span></label>
         <input type="number" id="min-move" min="0" step="10" value="0">
       </div>
       <div>
-        <button id="save-settings">Save settings</button>
-        <span class="saved" id="settings-saved" style="display:none">✓ Saved</span>
+        <button id="save-settings">Simpan tetapan</button>
+        <span class="saved" id="settings-saved" style="display:none">✓ Disimpan</span>
       </div>
     </section>
 
     <section class="track">
-      <h2>Track a New Order</h2>
+      <h2>Jejak Pesanan Baharu</h2>
       <div class="field">
-        <input type="text" id="track-url" placeholder="Paste a Grab share link (https://app.grab.com/s/…)">
-        <button id="track-btn" disabled>Track</button>
+        <input type="text" id="track-url" placeholder="Tampal pautan kongsi Grab (https://app.grab.com/s/…)">
+        <button id="track-btn" disabled>Jejak</button>
       </div>
       <div class="msg" id="track-msg"></div>
     </section>
 
     <section class="active">
-      <h2>Active Tracking</h2>
-      <div id="active-list"><div class="none">Loading…</div></div>
+      <h2>Penjejakan Aktif</h2>
+      <div id="active-list"><div class="none">Memuatkan…</div></div>
     </section>
 
     <table>
       <thead>
         <tr>
-          <th>Booking</th>
-          <th>From</th>
-          <th>To</th>
-          <th>Driver</th>
+          <th>Tempahan</th>
+          <th>Dari</th>
+          <th>Ke</th>
+          <th>Pemandu</th>
           <th>Status</th>
-          <th>Started</th>
-          <th>Completed</th>
+          <th>Dimula</th>
+          <th>Selesai</th>
           <th></th>
         </tr>
       </thead>
       <tbody id="orders-body">
-        <tr><td colspan="8" class="no-orders">Loading…</td></tr>
+        <tr><td colspan="8" class="no-orders">Memuatkan…</td></tr>
       </tbody>
     </table>
-    <p class="refresh-note">Auto-refreshes every 30s</p>
+    <p class="refresh-note">Dimuat semula automatik setiap 30s</p>
   </main>
 
   <script>
     // Use relative URLs so requests stay under the HA ingress path prefix.
     function statusBadge(status, isTerminal) {
       const cls = isTerminal
-        ? (status === 'Cancelled' ? 'badge-cancelled' : 'badge-done')
+        ? (status === 'Dibatalkan' ? 'badge-cancelled' : 'badge-done')
         : 'badge-active';
       return `<span class="badge ${cls}">${status}</span>`;
     }
@@ -143,11 +143,11 @@
       ul.className = 'timeline';
       events.forEach(e => {
         const li = document.createElement('li');
-        const eta = e.eta_minutes != null ? ` · ETA ${e.eta_minutes} min` : '';
+        const eta = e.eta_minutes != null ? ` · Anggaran tiba ${e.eta_minutes} min` : '';
         li.innerHTML = `<strong>${e.friendly_status}</strong>${eta}<span class="ts">${fmtDate(e.recorded_at)}</span>`;
         ul.appendChild(li);
       });
-      if (!events.length) ul.innerHTML = '<li>No events yet</li>';
+      if (!events.length) ul.innerHTML = '<li>Tiada acara lagi</li>';
       container.appendChild(ul);
       container.dataset.loaded = '1';
       container.classList.add('open');
@@ -159,7 +159,7 @@
         const orders = await res.json();
         const tbody = document.getElementById('orders-body');
         if (!orders.length) {
-          tbody.innerHTML = '<tr><td colspan="8" class="no-orders">No orders tracked yet</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="no-orders">Tiada pesanan dijejak lagi</td></tr>';
           return;
         }
         tbody.innerHTML = '';
@@ -174,7 +174,7 @@
             <td>${statusBadge(o.friendly_status, o.is_terminal)}</td>
             <td>${fmtDate(o.started_at)}</td>
             <td>${fmtDate(o.completed_at)}</td>
-            <td><button class="row-del" title="Delete">🗑</button></td>
+            <td><button class="row-del" title="Padam">🗑</button></td>
           `;
           const evRow = document.createElement('tr');
           evRow.className = 'events-row';
@@ -188,14 +188,14 @@
           row.addEventListener('click', () => loadEvents(o.id, evInner));
           row.querySelector('.row-del').addEventListener('click', (ev) => {
             ev.stopPropagation();
-            if (confirm('Delete this order and its history?')) deleteOrder(o.id);
+            if (confirm('Padam pesanan ini dan sejarahnya?')) deleteOrder(o.id);
           });
           tbody.appendChild(row);
           tbody.appendChild(evRow);
         });
       } catch (err) {
         document.getElementById('orders-body').innerHTML =
-          `<tr><td colspan="8" class="no-orders">Failed to load orders: ${err}</td></tr>`;
+          `<tr><td colspan="8" class="no-orders">Gagal memuatkan pesanan: ${err}</td></tr>`;
       }
     }
 
@@ -204,7 +204,7 @@
         await fetch(`api/orders/${orderId}`, { method: 'DELETE' });
         setTimeout(() => { loadOrders(); loadActive(); }, 400);
       } catch (err) {
-        alert('Failed to delete order: ' + err);
+        alert('Gagal memadam pesanan: ' + err);
       }
     }
 
@@ -237,7 +237,7 @@
         saved.style.display = 'inline';
         setTimeout(() => { saved.style.display = 'none'; }, 2000);
       } catch (err) {
-        alert('Failed to save settings: ' + err);
+        alert('Gagal menyimpan tetapan: ' + err);
       } finally {
         btn.disabled = false;
       }
@@ -259,7 +259,7 @@
       const url = trackUrl.value.trim();
       if (!url.toLowerCase().includes('grab')) return;
       trackBtn.disabled = true;
-      trackMsg.textContent = 'Starting…';
+      trackMsg.textContent = 'Memulakan…';
       trackMsg.className = 'msg';
       try {
         const res = await fetch('api/track', {
@@ -268,11 +268,11 @@
           body: JSON.stringify({ url }),
         });
         const data = await res.json();
-        trackMsg.textContent = data.message || (data.ok ? 'Tracking started.' : 'Failed.');
+        trackMsg.textContent = data.message || (data.ok ? 'Penjejakan dimulakan.' : 'Gagal.');
         trackMsg.className = 'msg ' + (data.ok ? 'ok' : 'err');
         if (data.ok) { trackUrl.value = ''; loadActive(); loadOrders(); }
       } catch (err) {
-        trackMsg.textContent = 'Request failed: ' + err;
+        trackMsg.textContent = 'Permintaan gagal: ' + err;
         trackMsg.className = 'msg err';
       } finally {
         validateTrackUrl();
@@ -291,31 +291,31 @@
         const res = await fetch('api/active');
         const items = await res.json();
         if (!items.length) {
-          wrap.innerHTML = '<div class="none">No orders currently being tracked.</div>';
+          wrap.innerHTML = '<div class="none">Tiada pesanan sedang dijejak.</div>';
           return;
         }
         wrap.innerHTML = '';
         items.forEach(i => {
           const card = document.createElement('div');
           card.className = 'acard';
-          const sub = [i.booking_code ? `Booking ${i.booking_code}` : null,
+          const sub = [i.booking_code ? `Tempahan ${i.booking_code}` : null,
                        i.dropoff ? `→ ${i.dropoff}` : null,
-                       `poll #${i.poll_count || 0}`].filter(Boolean).join(' · ');
+                       `semakan #${i.poll_count || 0}`].filter(Boolean).join(' · ');
           card.innerHTML = `
             <div class="info">
               <span class="slot">Slot ${i.slot ?? '—'}</span>${i.status || '—'}
               <div class="sub">${sub}</div>
             </div>
-            <button class="refresh">Refresh</button>
-            <button class="kill">Stop</button>`;
+            <button class="refresh">Muat semula</button>
+            <button class="kill">Henti</button>`;
           card.querySelector('.refresh').addEventListener('click', () => postAction(i.token, 'refresh'));
           card.querySelector('.kill').addEventListener('click', () => {
-            if (confirm('Stop tracking this order?')) postAction(i.token, 'kill');
+            if (confirm('Hentikan penjejakan pesanan ini?')) postAction(i.token, 'kill');
           });
           wrap.appendChild(card);
         });
       } catch (err) {
-        wrap.innerHTML = `<div class="none">Failed to load active tracking: ${err}</div>`;
+        wrap.innerHTML = `<div class="none">Gagal memuatkan penjejakan aktif: ${err}</div>`;
       }
     }
 

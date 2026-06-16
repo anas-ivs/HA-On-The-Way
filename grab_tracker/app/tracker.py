@@ -53,17 +53,17 @@ class OrderTracker:
         try:
             token = await resolve_token(short_url)
         except Exception as e:
-            await self.bot.send_text(chat_id, f"❌ Could not resolve Grab link:\n{e}")
-            return False, f"Could not resolve Grab link: {e}"
+            await self.bot.send_text(chat_id, f"❌ Tidak dapat menyelesaikan pautan Grab:\n{e}")
+            return False, f"Tidak dapat menyelesaikan pautan Grab: {e}"
 
         if token in self.active:
-            await self.bot.send_text(chat_id, "⚠️ This order is already being tracked.")
-            return False, "This order is already being tracked."
+            await self.bot.send_text(chat_id, "⚠️ Pesanan ini sedang dijejak.")
+            return False, "Pesanan ini sedang dijejak."
 
         slot = self.slots.claim(token)
         if slot is None:
-            msg = (f"Already tracking the maximum of {self.slots.size} orders. "
-                   "Wait for one to finish before adding another.")
+            msg = (f"Sudah menjejak maksimum {self.slots.size} pesanan. "
+                   "Sila tunggu satu selesai sebelum menambah yang lain.")
             await self.bot.send_text(chat_id, f"⚠️ {msg}")
             return False, msg
 
@@ -76,13 +76,13 @@ class OrderTracker:
         self.mqtt.set_slot_availability(slot, True)
         await self.bot.send_text(
             chat_id,
-            f"🛵 *Grab order tracking started!* _(slot {slot})_\n\n"
-            "I will update you on every status change.",
+            f"🛵 *Penjejakan pesanan Grab dimulakan!* _(slot {slot})_\n\n"
+            "Saya akan kemas kini anda pada setiap perubahan status.",
             parse_mode="Markdown"
         )
         task = asyncio.create_task(self._poll_loop(token, chat_id))
         self.active[token]["task"] = task
-        return True, f"Tracking started (slot {slot})."
+        return True, f"Penjejakan dimulakan (slot {slot})."
 
     async def api_track(self, url: str):
         """Web-initiated tracking. Updates go to the configured notify_chat_id (if any)."""
@@ -204,7 +204,7 @@ class OrderTracker:
         try:
             while True:
                 if asyncio.get_event_loop().time() - start > max_timeout:
-                    await self.bot.send_text(chat_id, "⏰ Tracking timed out after 2 hours.")
+                    await self.bot.send_text(chat_id, "⏰ Penjejakan tamat masa selepas 2 jam.")
                     break
 
                 # Cached after first success; re-fetched cheaply until HA timezone resolves.
@@ -221,7 +221,7 @@ class OrderTracker:
                     if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
                         await self.bot.send_text(
                             chat_id,
-                            "⚠️ Stopped tracking after repeated errors fetching the order.",
+                            "⚠️ Penjejakan dihentikan selepas ralat berulang semasa mendapatkan pesanan.",
                         )
                         break
                     backoff = min(
@@ -239,7 +239,7 @@ class OrderTracker:
                         owner = self.booking_codes.get(code)
                         if owner and owner != token and owner in self.active:
                             await self.bot.send_text(
-                                chat_id, "⚠️ This order is already being tracked.")
+                                chat_id, "⚠️ Pesanan ini sedang dijejak.")
                             break
                         self.booking_codes[code] = token
 
@@ -354,7 +354,7 @@ class OrderTracker:
 
     async def _send_debug(self, chat_id, order, poll_count):
         """Debug message — gated by the `debug_messages` setting."""
-        text = f"🔍 *DEBUG Poll #{poll_count}*\n"
+        text = f"🔍 *DEBUG Semakan #{poll_count}*\n"
         text += f"`bookingState: {order.booking_state}`\n"
         text += f"`sessionStatus: {order.session_status}`\n"
         text += f"`driverName: {order.driver_name or 'null'}`\n"
@@ -370,24 +370,24 @@ class OrderTracker:
         icon = STATUS_ICONS.get(order.booking_state, "📦")
         text = f"{icon} *{order.friendly_status}*\n\n"
         if order.driver_name:
-            text += f"*Driver:* {order.driver_name}"
+            text += f"*Pemandu:* {order.driver_name}"
             if order.driver_rating:
                 text += f" ⭐ {order.driver_rating}"
             text += "\n"
         if order.vehicle:
-            text += f"*Vehicle:* {order.vehicle}\n"
+            text += f"*Kenderaan:* {order.vehicle}\n"
         if order.pickup_name:
-            text += f"*From:* {order.pickup_name}\n"
+            text += f"*Dari:* {order.pickup_name}\n"
         if order.dropoff_name:
-            text += f"*To:* {order.dropoff_name}\n"
+            text += f"*Ke:* {order.dropoff_name}\n"
         if not order.is_terminal and order.eta_minutes and order.eta_minutes > 0:
-            text += f"*ETA:* {order.eta_minutes} min"
+            text += f"*Anggaran tiba:* {order.eta_minutes} min"
             if order.eta_time_str:
                 text += f" ({order.eta_time_str})"
             text += "\n"
         if order.is_terminal:
-            text += f"*Delivered at:* {order.delivery_time_str}\n"
-        text += f"\n_Poll #{poll_count}_"
+            text += f"*Dihantar pada:* {order.delivery_time_str}\n"
+        text += f"\n_Semakan #{poll_count}_"
         await self.bot.send_text(chat_id, text, parse_mode="Markdown")
 
     async def _send_eta_update(self, chat_id, order, poll_count):
@@ -395,8 +395,8 @@ class OrderTracker:
             return
         icon = STATUS_ICONS.get(order.booking_state, "📦")
         text = f"{icon} *{order.friendly_status}*\n"
-        text += f"⏱ *ETA:* {order.eta_minutes} min"
+        text += f"⏱ *Anggaran tiba:* {order.eta_minutes} min"
         if order.eta_time_str:
             text += f" ({order.eta_time_str})"
-        text += f"\n_Poll #{poll_count}_"
+        text += f"\n_Semakan #{poll_count}_"
         await self.bot.send_text(chat_id, text, parse_mode="Markdown")

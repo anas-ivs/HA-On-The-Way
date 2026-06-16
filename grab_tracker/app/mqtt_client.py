@@ -16,15 +16,15 @@ DEVICE_ID = "grab_tracker"
 #   key -> (component, discovery payload extras)
 CONFIG_ENTITIES = {
     "debug_messages": ("switch", {
-        "name": "Debug messages", "icon": "mdi:bug",
+        "name": "Mesej nyahpepijat", "icon": "mdi:bug",
         "payload_on": "1", "payload_off": "0", "state_on": "1", "state_off": "0",
     }),
     "send_driver_location": ("switch", {
-        "name": "Driver location pins", "icon": "mdi:map-marker",
+        "name": "Pin lokasi pemandu", "icon": "mdi:map-marker",
         "payload_on": "1", "payload_off": "0", "state_on": "1", "state_off": "0",
     }),
     "location_min_move_meters": ("number", {
-        "name": "Driver pin min move", "icon": "mdi:ruler",
+        "name": "Jarak min pin pemandu", "icon": "mdi:ruler",
         "min": 0, "max": 5000, "step": 10, "mode": "box", "unit_of_measurement": "m",
     }),
 }
@@ -146,26 +146,26 @@ class MqttClient:
             "device": self._device(),
         }
         self._pub_cfg("sensor", f"grab_order_{n}_status", {
-            **common, "name": f"Order {n} Status", "unique_id": f"grab_order_{n}_status",
+            **common, "name": f"Pesanan {n} Status", "unique_id": f"grab_order_{n}_status",
             "object_id": f"grab_order_{n}_status",
             "state_topic": state, "value_template": "{{ value_json.status }}",
             "json_attributes_topic": state, "icon": "mdi:moped",
         })
         self._pub_cfg("sensor", f"grab_order_{n}_eta", {
-            **common, "name": f"Order {n} ETA", "unique_id": f"grab_order_{n}_eta",
+            **common, "name": f"Pesanan {n} Anggaran Tiba", "unique_id": f"grab_order_{n}_eta",
             "object_id": f"grab_order_{n}_eta",
             "state_topic": state, "value_template": "{{ value_json.eta_minutes | default(0) }}",
             "unit_of_measurement": "min", "icon": "mdi:timer-outline",
         })
         self._pub_cfg("sensor", f"grab_order_{n}_delivery_time", {
-            **common, "name": f"Order {n} Delivery Time",
+            **common, "name": f"Pesanan {n} Masa Penghantaran",
             "unique_id": f"grab_order_{n}_delivery_time",
             "object_id": f"grab_order_{n}_delivery_time",
             "state_topic": state, "value_template": "{{ value_json.delivery_time }}",
             "icon": "mdi:clock-check-outline",
         })
         self._pub_cfg("device_tracker", f"grab_order_{n}_driver", {
-            **common, "name": f"Order {n} Driver", "unique_id": f"grab_order_{n}_driver",
+            **common, "name": f"Pesanan {n} Pemandu", "unique_id": f"grab_order_{n}_driver",
             "object_id": f"grab_order_{n}_driver",
             "state_topic": state, "value_template": "{{ value_json.tracker_state }}",
             "json_attributes_topic": state, "source_type": "gps",

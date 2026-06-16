@@ -14,14 +14,14 @@ HEADERS = {
 }
 
 STATUS_MAP = {
-    "QUEUEING":         "Order Placed",
-    "ALLOCATING":       "Finding Driver",
-    "PICKING_UP":       "Driver On The Way",
-    "IN_DELIVERY":      "Order Picked Up",
-    "ORDER_IN_PREPARE": "Preparing Your Order",
-    "ORDER_EXECUTING":  "Driver On The Way",
-    "COMPLETED":        "Delivered",
-    "CANCELLED":        "Cancelled",
+    "QUEUEING":         "Pesanan Dibuat",
+    "ALLOCATING":       "Mencari Pemandu",
+    "PICKING_UP":       "Pemandu Dalam Perjalanan",
+    "IN_DELIVERY":      "Pesanan Diambil",
+    "ORDER_IN_PREPARE": "Menyediakan Pesanan Anda",
+    "ORDER_EXECUTING":  "Pemandu Dalam Perjalanan",
+    "COMPLETED":        "Telah Dihantar",
+    "CANCELLED":        "Dibatalkan",
 }
 
 TERMINAL_STATES = {"COMPLETED", "CANCELLED"}

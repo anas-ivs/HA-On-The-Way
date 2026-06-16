@@ -12,17 +12,17 @@ GRAB_URL_RE = re.compile(r'https://app\.grab\.com/s/\S+')
 
 # Registered with Telegram (setMyCommands) so typing "/" shows the menu.
 COMMANDS = [
-    ("list", "List active orders (refresh / stop)"),
-    ("poll", "Force an immediate status check now"),
-    ("config", "Toggle settings (debug, location pins)"),
-    ("restart", "Stop all tracking and clear cache"),
-    ("help", "Show available commands"),
+    ("list", "Senarai pesanan aktif (muat semula / henti)"),
+    ("poll", "Semak status serta-merta sekarang"),
+    ("config", "Tetapan (mesej nyahpepijat, pin lokasi)"),
+    ("restart", "Hentikan semua penjejakan & kosongkan cache"),
+    ("help", "Tunjukkan arahan tersedia"),
 ]
 
 # Settings exposed as on/off toggles in /config (label, settings key).
 TOGGLE_SETTINGS = [
-    ("Debug messages", "debug_messages"),
-    ("Driver location pins", "send_driver_location"),
+    ("Mesej nyahpepijat", "debug_messages"),
+    ("Pin lokasi pemandu", "send_driver_location"),
 ]
 
 class TelegramBot:
@@ -66,61 +66,61 @@ class TelegramBot:
 
     async def _cmd_poll(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not self._authorized(update):
-            await update.message.reply_text("⛔ Not authorized to use this bot.")
+            await update.message.reply_text("⛔ Tiada kebenaran untuk menggunakan bot ini.")
             return
         chat_id = str(update.effective_chat.id)
         n = self.tracker.force_poll(chat_id) if self.tracker else 0
         if n:
-            await update.message.reply_text(f"🔄 Forcing an immediate check on {n} active order(s)…")
+            await update.message.reply_text(f"🔄 Memaksa semakan segera untuk {n} pesanan aktif…")
         else:
-            await update.message.reply_text("No active orders to poll right now.")
+            await update.message.reply_text("Tiada pesanan aktif untuk disemak sekarang.")
 
     async def _cmd_restart(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not self._authorized(update):
-            await update.message.reply_text("⛔ Not authorized to use this bot.")
+            await update.message.reply_text("⛔ Tiada kebenaran untuk menggunakan bot ini.")
             return
         n = await self.tracker.restart_all() if self.tracker else 0
         await update.message.reply_text(
-            f"♻️ Tracking reset — cleared {n} active order(s) and cache.\n"
-            "_(Resets the bot's tracking state, not the add-on container.)_",
+            f"♻️ Penjejakan ditetapkan semula — {n} pesanan aktif dan cache dikosongkan.\n"
+            "_(Menetapkan semula keadaan bot, bukan kontena add-on.)_",
             parse_mode="Markdown",
         )
 
     async def _cmd_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not self._authorized(update):
-            await update.message.reply_text("⛔ Not authorized to use this bot.")
+            await update.message.reply_text("⛔ Tiada kebenaran untuk menggunakan bot ini.")
             return
-        lines = [f"🛵 *Grab Tracker v{self.version}*", "",
-                 "Send a Grab share link to start tracking.", "", "*Commands:*"]
+        lines = [f"🛵 *Penjejak Grab v{self.version}*", "",
+                 "Hantar pautan kongsi Grab untuk mula menjejak.", "", "*Arahan:*"]
         lines += [f"/{name} — {desc}" for name, desc in COMMANDS]
         await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
 
     async def _cmd_list(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not self._authorized(update):
-            await update.message.reply_text("⛔ Not authorized to use this bot.")
+            await update.message.reply_text("⛔ Tiada kebenaran untuk menggunakan bot ini.")
             return
         chat_id = str(update.effective_chat.id)
         items = [i for i in self.tracker.list_active() if i["chat_id"] == chat_id]
         if not items:
-            await update.message.reply_text("No active orders being tracked.")
+            await update.message.reply_text("Tiada pesanan aktif sedang dijejak.")
             return
         for i in items:
             text = f"🛵 *Slot {i['slot']}* — {i.get('status') or '—'}"
             if i.get("booking_code"):
-                text += f"\nBooking: `{i['booking_code']}`"
+                text += f"\nTempahan: `{i['booking_code']}`"
             if i.get("dropoff"):
-                text += f"\nTo: {i['dropoff']}"
-            text += f"\n_Poll #{i.get('poll_count', 0)}_"
+                text += f"\nKe: {i['dropoff']}"
+            text += f"\n_Semakan #{i.get('poll_count', 0)}_"
             kb = InlineKeyboardMarkup([[
-                InlineKeyboardButton("🔄 Refresh", callback_data=f"r:{i['slot']}"),
-                InlineKeyboardButton("🛑 Stop", callback_data=f"k:{i['slot']}"),
+                InlineKeyboardButton("🔄 Muat semula", callback_data=f"r:{i['slot']}"),
+                InlineKeyboardButton("🛑 Henti", callback_data=f"k:{i['slot']}"),
             ]])
             await update.message.reply_text(text, parse_mode="Markdown", reply_markup=kb)
 
     async def _on_order_action(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         if not self._authorized(update):
-            await query.answer("Not authorized")
+            await query.answer("Tiada kebenaran")
             return
         await query.answer()
         action, _, raw = (query.data or "").partition(":")
@@ -130,27 +130,27 @@ class TelegramBot:
             return
         token = self.tracker.slots.token(slot)
         if not token or token not in self.tracker.active:
-            await query.edit_message_text("This order is no longer active.")
+            await query.edit_message_text("Pesanan ini tidak lagi aktif.")
             return
         base = query.message.text or ""
         if action == "r":
             self.tracker.force_poll_token(token)
-            await query.edit_message_text(base + "\n\n🔄 Refresh requested.")
+            await query.edit_message_text(base + "\n\n🔄 Permintaan muat semula dihantar.")
         elif action == "k":
             await self.tracker.kill(token)
-            await query.edit_message_text(base + "\n\n🛑 Tracking stopped.")
+            await query.edit_message_text(base + "\n\n🛑 Penjejakan dihentikan.")
 
     async def _cmd_config(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         settings = await self.tracker.db.get_settings()
         await update.message.reply_text(
-            "⚙️ *Settings* — tap to toggle:", parse_mode="Markdown",
+            "⚙️ *Tetapan* — ketik untuk togol:", parse_mode="Markdown",
             reply_markup=self._config_keyboard(settings),
         )
 
     async def _on_config_toggle(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
         if not self._authorized(update):
-            await query.answer("Not authorized")
+            await query.answer("Tiada kebenaran")
             return
         await query.answer()
         key = (query.data or "").split(":", 1)[-1]
@@ -164,7 +164,7 @@ class TelegramBot:
     def _config_keyboard(self, settings) -> InlineKeyboardMarkup:
         rows = []
         for label, key in TOGGLE_SETTINGS:
-            state = "ON ✅" if settings.get(key) == "1" else "OFF ❌"
+            state = "HIDUP ✅" if settings.get(key) == "1" else "MATI ❌"
             rows.append([InlineKeyboardButton(f"{label}: {state}", callback_data=f"toggle:{key}")])
         return InlineKeyboardMarkup(rows)
 

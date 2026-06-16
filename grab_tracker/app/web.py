@@ -47,9 +47,9 @@ def track():
     data = request.get_json(force=True, silent=True) or {}
     url = (data.get("url") or "").strip()
     if "grab" not in url.lower():
-        return jsonify({"ok": False, "message": "URL must be a Grab share link."}), 400
+        return jsonify({"ok": False, "message": "URL mesti pautan kongsi Grab."}), 400
     if _tracker is None:
-        return jsonify({"ok": False, "message": "Tracker unavailable."}), 503
+        return jsonify({"ok": False, "message": "Penjejak tidak tersedia."}), 503
     ok, message = _call(_tracker.api_track(url))
     return jsonify({"ok": ok, "message": message})
 

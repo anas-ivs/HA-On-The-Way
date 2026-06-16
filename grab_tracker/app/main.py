@@ -114,10 +114,10 @@ async def main():
 
     stopped = await tracker.stop_all_on_startup()
     if config.get("notify_chat_id"):
-        msg = f"🛵 Grab Tracker v{VERSION} started."
+        msg = f"🛵 Penjejak Grab v{VERSION} dimulakan."
         if stopped:
-            msg += f"\n⏹ {stopped} previous tracking session(s) were stopped on restart (not resumed)."
-        msg += "\nSend a Grab share link to start tracking."
+            msg += f"\n⏹ {stopped} sesi penjejakan terdahulu dihentikan semasa but semula (tidak disambung semula)."
+        msg += "\nHantar pautan kongsi Grab untuk mula menjejak."
         try:
             await bot.send_text(config["notify_chat_id"], msg)
         except Exception as e:
