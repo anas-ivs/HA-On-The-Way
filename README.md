@@ -27,7 +27,7 @@ ShopeeFood/Shopee dan lain-lain dirancang apabila kaedah penjejakan tersedia.
 1. Dalam Home Assistant: **Tetapan → Add-on → Kedai Add-on → ⋮ → Repositori**.
 2. Tambah URL repositori ini:
    ```
-   https://github.com/anas-ivs/HA-Grab-Tracker
+   https://github.com/anas-ivs/HA-On-The-Way
    ```
 3. Pasang **On the way** dari kedai, konfigurasikan, dan mulakan.
 

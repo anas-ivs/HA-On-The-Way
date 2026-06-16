@@ -2,7 +2,7 @@ name: "On the way"
 description: "Jejak pesanan penghantaran & tunggangan secara langsung melalui Telegram + sensor HA (kini menyokong Grab)"
 version: "2.0.0"
 slug: "grab_tracker"
-url: "https://github.com/anas-ivs/HA-Grab-Tracker"
+url: "https://github.com/anas-ivs/HA-On-The-Way"
 init: false
 arch:
   - aarch64
