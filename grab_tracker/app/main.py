@@ -74,7 +74,7 @@ async def main():
 
     await init_db()
 
-    ha_api = HAApi(config["ha_url"], config["ha_token"])
+    ha_api = HAApi()
     bot = TelegramBot(
         config["telegram_bot_token"],
         notify_chat_id=config.get("notify_chat_id") or None,

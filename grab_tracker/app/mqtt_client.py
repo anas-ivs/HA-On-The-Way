@@ -145,6 +145,12 @@ class MqttClient:
             "availability_mode": "all",
             "device": self._device(),
         }
+        self._pub_cfg("sensor", f"grab_order_{n}_service", {
+            **common, "name": f"Pesanan {n} Perkhidmatan", "unique_id": f"grab_order_{n}_service",
+            "object_id": f"grab_order_{n}_service",
+            "state_topic": state, "value_template": "{{ value_json.service }}",
+            "icon": "mdi:storefront-outline",
+        })
         self._pub_cfg("sensor", f"grab_order_{n}_status", {
             **common, "name": f"Pesanan {n} Status", "unique_id": f"grab_order_{n}_status",
             "object_id": f"grab_order_{n}_status",
@@ -167,7 +173,8 @@ class MqttClient:
         self._pub_cfg("device_tracker", f"grab_order_{n}_driver", {
             **common, "name": f"Pesanan {n} Pemandu", "unique_id": f"grab_order_{n}_driver",
             "object_id": f"grab_order_{n}_driver",
-            "state_topic": state, "value_template": "{{ value_json.tracker_state }}",
+            # No state_topic/value_template — HA derives home/away from the GPS attributes
+            # (latitude/longitude/gps_accuracy) instead of us forcing the state.
             "json_attributes_topic": state, "source_type": "gps",
         })
 

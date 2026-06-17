@@ -72,6 +72,7 @@ class OrderTracker:
             "last_state": None,
             "poll_count": 0,
             "wake": asyncio.Event(),  # set by /poll to force an immediate check
+            "service": "Grab",        # which delivery/ride service this order is for
         }
         self.mqtt.set_slot_availability(slot, True)
         await self.bot.send_text(
@@ -258,7 +259,9 @@ class OrderTracker:
 
                 if slot is not None:
                     self.mqtt.set_slot_availability(slot, True)
-                    self.mqtt.publish_slot_state(slot, self._slot_state(order))
+                    slot_state = self._slot_state(order)
+                    slot_state["service"] = self.active.get(token, {}).get("service", "Grab")
+                    self.mqtt.publish_slot_state(slot, slot_state)
 
                 settings = await self.db.get_settings()
 
@@ -309,7 +312,6 @@ class OrderTracker:
             "pickup": order.pickup_name,
             "dropoff": order.dropoff_name,
             "is_terminal": order.is_terminal,
-            "tracker_state": "not_home",
         }
         if order.has_driver_loc:
             state["latitude"] = order.driver_lat

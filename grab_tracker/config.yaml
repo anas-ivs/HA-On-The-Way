@@ -1,6 +1,6 @@
 name: "On the way"
 description: "Jejak pesanan penghantaran & tunggangan secara langsung melalui Telegram + sensor HA (kini menyokong Grab)"
-version: "2.0.0"
+version: "1.0.0"
 slug: "grab_tracker"
 url: "https://github.com/anas-ivs/HA-On-The-Way"
 init: false
@@ -13,8 +13,6 @@ startup: application
 boot: auto
 options:
   telegram_bot_token: ""
-  ha_token: ""
-  ha_url: "http://homeassistant:8123"
   notify_chat_id: ""
   allowed_chat_ids: ""
   poll_interval_prepare: 120
@@ -30,8 +28,6 @@ options:
   mqtt_password: ""
 schema:
   telegram_bot_token: str
-  ha_token: str
-  ha_url: str
   notify_chat_id: str?
   allowed_chat_ids: str?
   poll_interval_prepare: int

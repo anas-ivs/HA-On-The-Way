@@ -34,7 +34,6 @@ ShopeeFood/Shopee dan lain-lain dirancang apabila kaedah penjejakan tersedia.
 ## Keperluan
 
 - Token bot Telegram ([@BotFather](https://t.me/BotFather))
-- Token akses jangka panjang Home Assistant (untuk zon waktu)
 - Pelayan MQTT + integrasi MQTT (cth. add-on Mosquitto) — pilihan; tanpanya, penjejakan
   Telegram masih berfungsi dan entiti HA dilangkau.
 
@@ -43,6 +42,27 @@ ShopeeFood/Shopee dan lain-lain dirancang apabila kaedah penjejakan tersedia.
 Lihat tab **Documentation** add-on (dipaparkan daripada
 [`grab_tracker/DOCS.md`](grab_tracker/DOCS.md)) untuk rujukan penuh pilihan, arahan
 Telegram, senarai entiti, dan penyelesaian masalah.
+
+## ⚠️ Penafian
+
+**Tidak rasmi. Tidak berkaitan dengan atau disahkan oleh Grab Holdings** (atau perkhidmatan
+lain). Dibina oleh peminat untuk **kegunaan peribadi sahaja, bukan untuk keuntungan**. Tanda
+dagangan pihak ketiga adalah milik pemilik masing-masing (rujukan deskriptif sahaja). Guna
+atas risiko sendiri.
+
+Ia hanya membaca maklumat penjejakan langsung yang **sama** seperti yang anda lihat apabila
+membuka pautan kongsi pesanan anda sendiri di pelayar, kemudian menyampaikannya ke Telegram
+dan Home Assistant.
+
+## Privasi
+
+Semua data (status, pemandu, lokasi) kekal pada Home Assistant anda sendiri — SQLite setempat
+(50 pesanan terakhir, FIFO) dan hanya ke Telegram/HA anda. Tiada perkongsian pihak ketiga.
+
+## 📣 Untuk Grab
+
+Dibina oleh peminat untuk kegunaan peribadi tanpa keuntungan. Kami amat mengalu-alukan **API
+rasmi yang ringkas (baca-sahaja/peribadi)** untuk peminat dan pembangun hobi. 🙏
 
 ## Lesen
 

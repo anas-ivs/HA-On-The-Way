@@ -19,19 +19,35 @@ antara muka web.
 Buat masa ini, hantar **pautan kongsi Grab** (`https://app.grab.com/s/...`). Sokongan untuk
 perkhidmatan lain akan ditambah apabila kaedah penjejakan masing-masing tersedia.
 
+## ⚠️ Penafian (Disclaimer)
+
+Add-on ini **tidak rasmi** dan **tidak berkaitan dengan, atau disahkan oleh, Grab Holdings**
+(atau mana-mana perkhidmatan lain). Ia dibina oleh seorang peminat untuk **kegunaan peribadi
+sahaja dan bukan untuk tujuan keuntungan**. Nama serta tanda dagangan pihak ketiga (Grab,
+foodpanda, Shopee, dll.) adalah milik pemilik masing-masing dan dirujuk secara deskriptif
+sahaja. Gunakan atas risiko anda sendiri — ia mungkin berhenti berfungsi pada bila-bila masa.
+
+**Cara ia berfungsi (ringkas):** apabila sesuatu pesanan dikongsi, ia menghasilkan halaman
+penjejakan langsung yang boleh dibuka oleh sesiapa yang memegang pautan tersebut. Add-on ini
+hanya membaca maklumat penjejakan yang **sama** itu bagi pihak anda — persis seperti yang anda
+akan lihat jika membuka pautan itu sendiri di pelayar — dan menyampaikannya ke Telegram dan
+Home Assistant. Ia tidak mengakses apa-apa yang anda sendiri tidak boleh lihat melalui pautan
+kongsi anda.
+
 ## Yang anda perlukan
 
 1. **Token bot Telegram** — cipta bot dengan [@BotFather](https://t.me/BotFather) dan salin
    tokennya.
-2. **Token akses jangka panjang Home Assistant** — Profil → Keselamatan → Token akses
-   jangka panjang. Digunakan untuk membaca zon waktu HA supaya masa dipaparkan dengan betul.
-3. **Pelayan MQTT + integrasi MQTT** — contohnya add-on Mosquitto. Diperlukan untuk entiti
+2. **Pelayan MQTT + integrasi MQTT** — contohnya add-on Mosquitto. Diperlukan untuk entiti
    Home Assistant. Tanpanya, penjejakan Telegram masih berfungsi; cuma entiti HA dilangkau.
+
+> Tiada token akses Home Assistant diperlukan — zon waktu diambil secara automatik
+> daripada persekitaran add-on.
 
 ## Persediaan
 
 1. Pasang dan buka **Konfigurasi**.
-2. Isi `telegram_bot_token` dan `ha_token` (dan `ha_url` jika bukan nilai lalai).
+2. Isi `telegram_bot_token`.
 3. Tetapkan `notify_chat_id` kepada ID sembang Telegram anda jika mahukan mesej "dimulakan"
    semasa but, dan supaya penjejakan dari web mempunyai tempat untuk menghantar kemas kini
    (bot tidak boleh menghantar mesej ke sembang yang belum pernah dilihatnya).
@@ -96,8 +112,6 @@ Buka panel add-on (bar sisi) untuk papan pemuka yang menunjukkan:
 | Pilihan | Lalai | Keterangan |
 |---------|-------|------------|
 | `telegram_bot_token` | — | Token BotFather (wajib) |
-| `ha_token` | — | Token jangka panjang HA, untuk zon waktu (wajib) |
-| `ha_url` | `http://homeassistant:8123` | URL asas HA |
 | `notify_chat_id` | — | ID sembang untuk mesej but + kemas kini dari web (pilihan) |
 | `allowed_chat_ids` | — | ID sembang (dipisah koma) yang dibenarkan; kosong = terbuka kepada semua |
 | `poll_interval_prepare` | 120 | Saat semakan semasa menyedia / pemandu ditetapkan |
@@ -129,3 +143,23 @@ Buka panel add-on (bar sisi) untuk papan pemuka yang menunjukkan:
 - **Bot mengabaikan saya:** jika `allowed_chat_ids` ditetapkan, ID sembang anda mesti ada
   dalam senarai.
 - **Terlalu banyak/sedikit log:** laraskan `log_level`.
+
+> ⚠️ **Nota keselamatan:** menetapkan `log_level` kepada `debug` atau `trace` menghasilkan
+> log rangkaian terperinci yang mungkin mengandungi **token bot Telegram** anda. Kekalkan
+> `log_level: info` (lalai) untuk kegunaan biasa.
+
+## Privasi
+
+Semua data — status pesanan, nama/penarafan pemandu, nombor plat kenderaan, lokasi GPS, dan
+alamat ambil/hantar — kekal pada instans Home Assistant anda sendiri: disimpan secara setempat
+dalam SQLite (50 pesanan terakhir sahaja, FIFO) dan dihantar hanya ke sembang Telegram serta
+Home Assistant **anda sendiri**. Tiada data dihantar kepada mana-mana pihak ketiga. Maklumat
+pemandu ialah data peribadi — sila guna secara bertanggungjawab dan untuk tujuan peribadi
+sahaja.
+
+## 📣 Untuk Grab
+
+Jika anda dari Grab dan terjumpa projek ini — ia dibina oleh seorang peminat semata-mata untuk
+kemudahan peribadi, tanpa tujuan keuntungan. Kami amat berbesar hati jika Grab dapat
+menyediakan **akses API rasmi yang ringkas (baca-sahaja / peribadi)** supaya peminat dan
+pembangun hobi boleh memanfaatkannya secara sah dan selamat. 🙏
